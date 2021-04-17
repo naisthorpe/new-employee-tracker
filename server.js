@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 require("dotenv").config();
+const cTable = require("console.table");
 
 // create the connection info for the sql database
 const connection = mysql.createConnection({
@@ -236,6 +237,36 @@ const addEmployee = () => {
             )
         });
 };
+
+const viewDepartments = () => {
+    connection.query(
+        "SELECT * FROM department", (err, res) => {
+            if (err) throw err;
+            console.table("\nDEPARTMENTS", res);
+            start();
+        }
+    )
+};
+
+const viewJobs = () => {
+    connection.query(
+        "SELECT * FROM job", (err, res) => {
+            if (err) throw err;
+            console.table("\nJOBS", res);
+            start();
+        }
+    )
+};
+
+const viewEmployees = () => {
+    connection.query(
+        "SELECT T1.id AS ID, CONCAT(T1.first_name, ' ', T1.last_name) AS Name, CONCAT(T2.first_name, ' ', T2.last_name) AS 'Reports To', job.title AS 'Job Title', job.salary AS Salary, department.name AS Department FROM employee T1 LEFT JOIN job ON (T1.job_id = job.id) LEFT JOIN department ON (job.department_id = department.id) LEFT JOIN employee T2 ON (T1.manager_id = T2.id)", (err, res) => {
+            if (err) throw err;
+            console.table("\nEMPLOYEES", res);
+            start();
+        }
+    )
+}
 
 const updateEmployeeJob = () => {
     connection.query(
