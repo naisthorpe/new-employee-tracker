@@ -12,6 +12,9 @@ const connection = mysql.createConnection({
 });
 
 
+
+
+// Functions start here
 const start = () => {
     inquirer
         .prompt(
@@ -47,7 +50,7 @@ const start = () => {
                     updateEmployeeJob();
                     break;
                 default:
-                    console.log("Add connection end here.");
+                    connection.end();
             }
         })
 };
@@ -62,13 +65,91 @@ const addDepartment = () => {
             }
         )
         .then((response) => {
-            console.log(response.deptName);
-            console.log("\n======\n");
+            connection.query(
+                "INSERT INTO department SET ?",
+                {
+                    name: response.deptName
+                },
+                (err) => {
+                    if (err) throw err;
+                    start();
+                }
+            );
+            console.log(`Department ${response.deptName} successfully added`);
             start();
         })
 };
 
+
+const addJob = () => {
+    let departmentList =  connection.query(
+        "SELECT name FROM department", (err, res) => {
+            if (err) throw err;
+            let departmentsArray = [];
+            res.forEach(({name}) => {
+                departmentsArray.push(name);
+            });
+            return departmentsArray;
+        }
+    );
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                message: "What is the job title being added?",
+                name: "title"
+            },
+            {
+                type: "input",
+                message: "What is the annual salary of the position?",
+                name: "salary"
+            },
+            {
+                type: "list",
+                message: "What is the department ID for the position?",
+                name: "department",
+                choices: departmentList
+            }
+        ])
+        .then((response) => {
+            connection.query(
+                "INSERT INTO job SET ?",
+                {
+                    title: response.title,
+                    salary: response.salary,
+                    department_id: response.department
+                }
+            )
+        })
+}
+
+
 connection.connect((err) => {
     if (err) throw err;
     start();
-})
+});
+
+// Variables for choices
+/*
+const jobList = connection.query(
+    "SELECT name FROM job", (err, res) => {
+        if (err) throw err;
+        const jobsArray = [];
+        res.forEach(({name}) => {
+            jobsArray.push(name);
+        });
+        return jobsArray;
+    }
+);
+
+const departmentList = connection.query(
+    "SELECT name FROM department", (err, res) => {
+        if (err) throw err;
+        const departmentsArray = [];
+        res.forEach(({name}) => {
+            departmentsArray.push(name);
+        });
+        return departmentsArray;
+    }
+);
+*/
