@@ -71,7 +71,7 @@ const addDepartment = () => {
                 },
                 (err) => {
                     if (err) throw err;
-                    console.log(`Department ${response.deptName} successfully added`);
+                    console.log(`\nDepartment ${response.deptName} successfully added\n`);
                     start();
                 }
             );
@@ -119,8 +119,12 @@ const addJob = () => {
                             title: response.title,
                             salary: response.salary,
                             department_id: response.department
-                        }
-                    )
+                        },
+                        (err, res) => {
+                            if (err) throw err;
+                            console.log("\nJob added successfully!\n");
+                            start();
+                        })
                 })
         }
     );
@@ -210,7 +214,7 @@ const addEmployee = () => {
                                     }
                                 ]
                                 )
-                                .then( (response) => {                                    
+                                .then((response) => {
                                     connection.query(
                                         "INSERT INTO employee SET ?",
                                         [{
@@ -221,11 +225,11 @@ const addEmployee = () => {
                                         }],
                                         (err, res) => {
                                             if (err) throw err;
-                                            console.log("Employee added successfully!");
+                                            console.log("\nEmployee added successfully!\n");
                                             start();
                                         }
                                     )
-                                    
+
                                 })
                         }
 
@@ -237,7 +241,7 @@ const addEmployee = () => {
 
 const viewDepartments = () => {
     connection.query(
-        "SELECT name AS Department FROM department", (err, res) => {
+        "SELECT id AS ID, name AS Department FROM department", (err, res) => {
             if (err) throw err;
             console.table("\nDEPARTMENTS", res);
             start();
@@ -247,7 +251,7 @@ const viewDepartments = () => {
 
 const viewJobs = () => {
     connection.query(
-        "SELECT id AS ID, title AS Title, salary as Salary, department.id AS Department FROM job LEFT JOIN department ON (job.department_id = department.id)", (err, res) => {
+        "SELECT job.id AS ID, job.title AS Title, job.salary as Salary, department.name AS Department FROM job LEFT JOIN department ON (job.department_id = department.id)", (err, res) => {
             if (err) throw err;
             console.table("\nJOBS", res);
             start();
