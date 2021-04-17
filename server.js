@@ -12,9 +12,6 @@ const connection = mysql.createConnection({
     password: process.env.DB_PASSWORD
 });
 
-
-
-
 // Functions start here
 const start = () => {
     inquirer
@@ -240,7 +237,7 @@ const addEmployee = () => {
 
 const viewDepartments = () => {
     connection.query(
-        "SELECT * FROM department", (err, res) => {
+        "SELECT name AS Department FROM department", (err, res) => {
             if (err) throw err;
             console.table("\nDEPARTMENTS", res);
             start();
@@ -250,7 +247,7 @@ const viewDepartments = () => {
 
 const viewJobs = () => {
     connection.query(
-        "SELECT * FROM job", (err, res) => {
+        "SELECT id AS ID, title AS Title, salary as Salary, department.id AS Department FROM job LEFT JOIN department ON (job.department_id = department.id)", (err, res) => {
             if (err) throw err;
             console.table("\nJOBS", res);
             start();
