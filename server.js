@@ -21,7 +21,7 @@ const start = () => {
                 message: "What would you like to do?",
                 name: "choice",
                 choices: ["VIEW Employees", "VIEW Jobs", "VIEW Departments", "ADD Employee", "ADD Job", "ADD Department",
-                    "UPDATE Employee Job", "EXIT Application"]
+                    "UPDATE Employee Job", "UPDATE Employee Manager", "EXIT Application"]
             }
         )
         .then((response) => {
@@ -46,6 +46,9 @@ const start = () => {
                     break;
                 case ("UPDATE Employee Job"):
                     updateEmployeeJob();
+                    break;
+                case ("UPDATE Employee Manager"):
+                    updateEmployeeManager();
                     break;
                 default:
                     connection.end();
@@ -77,7 +80,6 @@ const addDepartment = () => {
             );
         })
 };
-
 
 const addJob = () => {
     connection.query(
@@ -329,6 +331,61 @@ const updateEmployeeJob = () => {
                                 (err, res) => {
                                     if (err) throw err;
                                     console.log("Job update successful!");
+                                    start();
+                                }
+                            )
+                        })
+                }
+
+            )
+        }
+    )
+};
+
+const updateEmployeeManager = () => {
+    connection.query(
+        "SELECT first_name, last_name, id FROM employee", (err, res) => {
+            if (err) throw err;
+
+            let employeesArray = [];
+            for (let i = 0; i < res.length; i++) {
+                let empName = `${res[i].first_name} ${res[i].last_name}`;
+                let empId = res[i].id;
+                let empNameObject = {
+                    name: empName,
+                    value: empId
+                }
+                employeesArray.push(empNameObject);
+            };
+
+            
+
+                    inquirer
+                        .prompt([
+
+                            {
+                                type: "list",
+                                message: "Which employee would you like to update the manager?",
+                                name: "nameId",
+                                choices: employeesArray
+                            },
+                            {
+                                type: "list",
+                                message: "Who is the employee's new manager?",
+                                name: "managerId",
+                                choices: employeesArray
+                            }
+                        ]
+                        )
+                        .then((response) => {
+                            connection.query(
+                                "UPDATE employee SET ?",
+                                {
+                                    manager_id: response.managerId
+                                },
+                                (err, res) => {
+                                    if (err) throw err;
+                                    console.log("Employee manager update successful!");
                                     start();
                                 }
                             )
