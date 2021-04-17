@@ -21,7 +21,7 @@ const start = () => {
                 message: "What would you like to do?",
                 name: "choice",
                 choices: ["VIEW Employees", "VIEW Jobs", "VIEW Departments", "ADD Employee", "ADD Job", "ADD Department",
-                    "UPDATE Employee Job", "UPDATE Employee Manager", "EXIT Application"]
+                    "UPDATE Employee Job", "UPDATE Employee Manager", "VIEW Employees By Manager", "VIEW Department Budget", "EXIT Application"]
             }
         )
         .then((response) => {
@@ -49,6 +49,12 @@ const start = () => {
                     break;
                 case ("UPDATE Employee Manager"):
                     updateEmployeeManager();
+                    break;
+                case ("VIEW Employees By Manager"):
+                    viewEmployeesByManager();
+                    break;
+                case ("VIEW Department Budget"):
+                    viewDepartmentBudget();
                     break;
                 default:
                     connection.end();
@@ -358,43 +364,123 @@ const updateEmployeeManager = () => {
                 employeesArray.push(empNameObject);
             };
 
-            
 
-                    inquirer
-                        .prompt([
 
-                            {
-                                type: "list",
-                                message: "Which employee would you like to update the manager?",
-                                name: "nameId",
-                                choices: employeesArray
-                            },
-                            {
-                                type: "list",
-                                message: "Who is the employee's new manager?",
-                                name: "managerId",
-                                choices: employeesArray
-                            }
-                        ]
-                        )
-                        .then((response) => {
-                            connection.query(
-                                "UPDATE employee SET ?",
-                                {
-                                    manager_id: response.managerId
-                                },
-                                (err, res) => {
-                                    if (err) throw err;
-                                    console.log("Employee manager update successful!");
-                                    start();
-                                }
-                            )
-                        })
+            inquirer
+                .prompt([
+
+                    {
+                        type: "list",
+                        message: "Which employee would you like to update the manager?",
+                        name: "nameId",
+                        choices: employeesArray
+                    },
+                    {
+                        type: "list",
+                        message: "Who is the employee's new manager?",
+                        name: "managerId",
+                        choices: employeesArray
+                    }
+                ]
+                )
+                .then((response) => {
+                    connection.query(
+                        "UPDATE employee SET ? WHERE ?",
+                        [{
+                            manager_id: response.managerId
+                        },
+                        {
+                            id: response.nameId
+                        }],
+                        (err, res) => {
+                            if (err) throw err;
+                            console.log("Employee manager update successful!");
+                            start();
+                        }
+                    )
+                })
+        }
+
+    )
+};
+
+const viewEmployeesByManager = () => {
+    connection.query(
+        "SELECT first_name, last_name, id FROM employee", (err, res) => {
+            if (err) throw err;
+
+            let employeesArray = [];
+            for (let i = 0; i < res.length; i++) {
+                let empName = `${res[i].first_name} ${res[i].last_name}`;
+                let empId = res[i].id;
+                let empNameObject = {
+                    name: empName,
+                    value: empId
                 }
-
-            )
+                employeesArray.push(empNameObject);
+            };
+            inquirer
+                .prompt(
+                    {
+                        type: "list",
+                        message: "Select manager to view list of employees.",
+                        choices: employeesArray,
+                        name: "employee"
+                    }
+                )
+                .then((response) => {
+                    connection.query(
+                        "SELECT CONCAT(T1.first_name, ' ', T1.last_name) AS Name FROM employee T1 JOIN employee T2 ON (T1.manager_id = T2.id) WHERE T1.?;",
+                        {
+                            manager_id: response.employee
+                        },
+                        (err, res) => {
+                            if (err) throw err;
+                            console.table("\nEMPLOYEES", res);
+                            start();
+                        }
+                    )
+                })
         }
     )
+};
+
+const viewDepartmentBudget = () => {
+    connection.query(
+        "SELECT name, id FROM department", (err, res) => {
+            if (err) throw err;
+            let departmentsArray = [];
+            for (let i = 0; i < res.length; i++) {
+                let department = res[i]
+                let departmentObject = {
+                    name: department.name,
+                    value: department.id
+                }
+                departmentsArray.push(departmentObject);
+            };
+            inquirer
+                .prompt(
+                    {
+                        type: "list",
+                        name: "department",
+                        message: "Which department would you like to view the total utilized budget?",
+                        choices: departmentsArray
+                    }
+                )
+                .then((response) => {
+                    connection.query(
+                        "SELECT department.name AS Department, SUM(job.salary) AS 'Total Utilized Budget' FROM employee JOIN job ON (employee.job_id = job.id) JOIN department ON department.id = job.department_id WHERE department.? GROUP BY department.name",
+                        {
+                            id: response.department
+                        },
+                        (err, res) => {
+                            if (err) throw err;
+                            console.table("\nTOTAL UTILIZED BUDGET", res);
+                            start();
+                        }
+                    )
+                })
+        })
 };
 
 connection.connect((err) => {
