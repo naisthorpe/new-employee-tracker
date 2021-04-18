@@ -328,7 +328,7 @@ const updateEmployeeJob = () => {
                         )
                         .then((response) => {
                             connection.query(
-                                "UPDATE employee SET ? WHERE id = ?",
+                                "UPDATE employee SET ? WHERE ?",
                                 [{
                                     job_id: response.jobTitle
                                 },
