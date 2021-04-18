@@ -17,7 +17,7 @@ CREATE TABLE job (
     department_id INT NOT NULL,
     PRIMARY KEY (id),
     -- department_id references the id in the department table --
-    FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE CASCADE
+    FOREIGN KEY (department_id) REFERENCES department(id)
 );
 
 
@@ -29,9 +29,9 @@ CREATE TABLE employee (
     manager_id INT NULL,
     PRIMARY KEY (id),
     -- job_id references the id in the job table --
-    FOREIGN KEY (job_id) REFERENCES job(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES job(id),
     -- manager_id references the id in the employee table -- 
-    FOREIGN KEY (manager_id) REFERENCES employee(id) ON DELETE CASCADE
+    FOREIGN KEY (manager_id) REFERENCES employee(id)
 );
 
 SELECT * FROM department;
