@@ -269,13 +269,14 @@ const viewJobs = () => {
 
 const viewEmployees = () => {
     connection.query(
-        "SELECT T1.id AS ID, CONCAT(T1.first_name, ' ', T1.last_name) AS Name, CONCAT(T2.first_name, ' ', T2.last_name) AS 'Reports To', job.title AS 'Job Title', job.salary AS Salary, department.name AS Department FROM employee T1 LEFT JOIN job ON (T1.job_id = job.id) LEFT JOIN department ON (job.department_id = department.id) LEFT JOIN employee T2 ON (T1.manager_id = T2.id)", (err, res) => {
+        "SELECT T1.id AS ID, CONCAT(T1.first_name, ' ', T1.last_name) AS Name, CONCAT(T2.first_name, ' ', T2.last_name) AS 'Reports To', job.title AS 'Job Title', job.salary AS Salary, department.name AS Department FROM employee T1 LEFT JOIN job ON (T1.job_id = job.id) LEFT JOIN department ON (job.department_id = department.id) LEFT JOIN employee T2 ON (T1.manager_id = T2.id)", 
+        (err, res) => {
             if (err) throw err;
             console.table("\nEMPLOYEES", res);
             start();
         }
     )
-}
+};
 
 const updateEmployeeJob = () => {
     connection.query(
@@ -482,6 +483,8 @@ const viewDepartmentBudget = () => {
                 })
         })
 };
+
+
 
 connection.connect((err) => {
     if (err) throw err;

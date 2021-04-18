@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS employee_trackerDB;
+DROP DATABASE IF EXISTS employee_trackerdb;
 
-CREATE DATABASE employee_trackerDB;
+CREATE DATABASE employee_trackerdb;
 
-USE employee_trackerDB;
+USE employee_trackerdb;
 
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT,
@@ -17,7 +17,7 @@ CREATE TABLE job (
     department_id INT NOT NULL,
     PRIMARY KEY (id),
     -- department_id references the id in the department table --
-    FOREIGN KEY (department_id) REFERENCES department(id)
+    FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE CASCADE
 );
 
 
@@ -29,9 +29,9 @@ CREATE TABLE employee (
     manager_id INT NULL,
     PRIMARY KEY (id),
     -- job_id references the id in the job table --
-    FOREIGN KEY (job_id) REFERENCES job(id),
+    FOREIGN KEY (job_id) REFERENCES job(id) ON DELETE CASCADE,
     -- manager_id references the id in the employee table -- 
-    FOREIGN KEY (manager_id) REFERENCES employee(id)
+    FOREIGN KEY (manager_id) REFERENCES employee(id) ON DELETE CASCADE
 );
 
 SELECT * FROM department;
